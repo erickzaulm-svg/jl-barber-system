@@ -10,6 +10,10 @@ app.use(express.json()); // Permite leer datos en formato JSON
 // --- RUTAS DE LA API ---
 const serviceRoutes = require('./routes/serviceRoutes');
 app.use('/api/services', serviceRoutes);
+const appointmentRoutes = require('./routes/appointmentRoutes');
+app.use('/api/appointments', appointmentRoutes);
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
 // -----------------------
 // Ruta de prueba
 app.get('/', (req, res) => {
