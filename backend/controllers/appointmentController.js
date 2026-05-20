@@ -8,7 +8,10 @@ const agendarCita = async (req, res) => {
       "INSERT INTO citas (sucursal, servicio, barbero, fecha, hora) VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [sucursal, servicio, barbero, fecha, hora]
     );
-    res.status(201).json({ mensaje: "¡Cita guardada!", cita: nuevaCita.rows[0] });
+    res.status(201).json({ 
+      mensaje: `¡Cita guardada con éxito! Tu ID de cita es: ${nuevaCita.rows[0].id}. Guardalo para consultar o cancelar.`, 
+      cita: nuevaCita.rows[0] 
+    });
   } catch (error) {
     res.status(500).json({ error: "Error al guardar" });
   }
@@ -36,17 +39,32 @@ const checarDisponibilidad = async (req, res) => {
   }
 };
 
-// 4. ELIMINAR CITA (¡NUEVA!)
+// 4. ELIMINAR CITA
 const eliminarCita = async (req, res) => {
   try {
-    const { id } = req.params; // Atrapamos el ID que nos manda el frontend
-    await pool.query("DELETE FROM citas WHERE id = $1", [id]); // Lo borramos de la base de datos
+    const { id } = req.params; 
+    await pool.query("DELETE FROM citas WHERE id = $1", [id]); 
     res.json({ mensaje: "Cita cancelada y horario liberado" });
   } catch (error) {
-    console.error("Error al borrar:", error);
     res.status(500).json({ error: "Error al intentar borrar la cita" });
   }
 };
 
-// Exportamos las cuatro funciones
-module.exports = { agendarCita, obtenerCitas, checarDisponibilidad, eliminarCita };
+// 5. BUSCAR UNA CITA POR ID (¡NUEVA!)
+const obtenerCitaPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const resultado = await pool.query("SELECT * FROM citas WHERE id = $1", [id]);
+
+    if (resultado.rows.length === 0) {
+      return res.status(404).json({ error: "No se encontró ninguna cita con ese ID." });
+    }
+
+    res.json(resultado.rows[0]);
+  } catch (error) {
+    console.error("Error al buscar cita:", error);
+    res.status(500).json({ error: "Error en el servidor al buscar la cita" });
+  }
+};
+
+module.exports = { agendarCita, obtenerCitas, checarDisponibilidad, eliminarCita, obtenerCitaPorId };
