@@ -5,21 +5,17 @@ import axios from 'axios';
 
 export function AppointmentStepper({ onCancel }: { onCancel: () => void }) {
   const [active, setActive] = useState(0);
+  const [cargando, setCargando] = useState(false); // Estado para evitar clics dobles
   
   const [sucursalSeleccionada, setSucursalSeleccionada] = useState<string | null>('Río Balsas, Pueblo Nuevo, Apodaca');
-  
-  // Arreglo para guardar múltiples servicios
   const [serviciosSeleccionados, setServiciosSeleccionados] = useState<string[]>([]);
-  
   const [barberoSeleccionado, setBarberoSeleccionado] = useState<string | null>(null);
   const [fechaSeleccionada, setFechaSeleccionada] = useState<Date | null>(null);
   const [horaSeleccionada, setHoraSeleccionada] = useState<string | null>(null);
-  
   const [horasOcupadas, setHorasOcupadas] = useState<string[]>([]);
 
   const horarios = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'];
 
-  // Buscador de horarios
   useEffect(() => {
     if (fechaSeleccionada && barberoSeleccionado) {
       const fechaReal = new Date(fechaSeleccionada);
@@ -39,7 +35,6 @@ export function AppointmentStepper({ onCancel }: { onCancel: () => void }) {
   const nextStep = () => setActive((current) => (current < 4 ? current + 1 : current));
   const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
 
-  // Función matemática para calcular el total
   const calcularTotal = () => {
     let total = 0;
     if (serviciosSeleccionados.includes('Corte - $150')) total += 150;
@@ -50,16 +45,16 @@ export function AppointmentStepper({ onCancel }: { onCancel: () => void }) {
   };
 
   const confirmarCita = async () => {
-    // --- GUARDIA DE SEGURIDAD ---
     if (!sucursalSeleccionada || serviciosSeleccionados.length === 0 || !barberoSeleccionado || !fechaSeleccionada || !horaSeleccionada) {
-      alert("¡Alto ahí! Te faltó seleccionar algún dato (revisa que hayas elegido la hora). Regresa y completa todos los pasos.");
+      alert("¡Alto ahí! Te faltó seleccionar algún dato.");
       return; 
     }
+
+    setCargando(true); // Bloqueamos el botón al iniciar
 
     try {
       const datosDeCita = {
         sucursal: sucursalSeleccionada,
-        // Unimos los servicios con una coma para guardarlos en la base de datos
         servicio: serviciosSeleccionados.join(', '),
         barbero: barberoSeleccionado,
         fecha: fechaSeleccionada, 
@@ -70,6 +65,8 @@ export function AppointmentStepper({ onCancel }: { onCancel: () => void }) {
       onCancel();
     } catch (error) {
       alert("Hubo un problema al agendar la cita.");
+    } finally {
+      setCargando(false); // Desbloqueamos después de la respuesta
     }
   };
 
@@ -90,7 +87,7 @@ export function AppointmentStepper({ onCancel }: { onCancel: () => void }) {
           <Stepper.Step label="Servicios" description="¿Qué te haremos?">
             <MultiSelect 
               mt="xl" 
-              label="Selecciona tus servicios (Puedes elegir varios)" 
+              label="Selecciona tus servicios" 
               placeholder="Haz clic para agregar servicios" 
               data={['Corte - $150', 'Barba - $70', 'Ceja - $30', 'Figuras - Desde $40']} 
               value={serviciosSeleccionados} 
@@ -127,7 +124,7 @@ export function AppointmentStepper({ onCancel }: { onCancel: () => void }) {
                     })}
                   </SimpleGrid>
                 ) : (
-                  <Text c="dimmed" size="sm" style={{ fontStyle: 'italic' }}>Selecciona un barbero y un día para ver sus horarios.</Text>
+                  <Text c="dimmed" size="sm" style={{ fontStyle: 'italic' }}>Selecciona un barbero y un día.</Text>
                 )}
               </div>
             </Group>
@@ -138,32 +135,25 @@ export function AppointmentStepper({ onCancel }: { onCancel: () => void }) {
               <Title order={3} ta="center" c="yellow.7" mb="lg">Verifica tus datos</Title>
               <Divider my="sm" color="#333" />
               <Group justify="space-between" mb="xs"><Text c="dimmed">Sucursal:</Text><Text c="white" fw={500}>{sucursalSeleccionada}</Text></Group>
-              
-              <Group justify="space-between" mb="xs" align="flex-start">
-                <Text c="dimmed">Servicios:</Text>
-                <Text c="white" fw={500} ta="right" maw={200}>
-                  {serviciosSeleccionados.length > 0 ? serviciosSeleccionados.join(', ') : 'Ninguno'}
-                </Text>
-              </Group>
-              
-              <Group justify="space-between" mb="xs"><Text c="dimmed">Barbero:</Text><Text c="white" fw={500}>{barberoSeleccionado || 'No seleccionado'}</Text></Group>
-              <Group justify="space-between" mb="xs"><Text c="dimmed">Fecha:</Text><Text c="white" fw={500}>{fechaSeleccionada ? new Date(fechaSeleccionada).toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }) : 'No seleccionada'}</Text></Group>
-              <Group justify="space-between"><Text c="dimmed">Hora:</Text><Text c="white" fw={500}>{horaSeleccionada || 'No seleccionada'}</Text></Group>
-              
+              <Group justify="space-between" mb="xs"><Text c="dimmed">Servicios:</Text><Text c="white" fw={500} ta="right" maw={200}>{serviciosSeleccionados.join(', ')}</Text></Group>
+              <Group justify="space-between" mb="xs"><Text c="dimmed">Barbero:</Text><Text c="white" fw={500}>{barberoSeleccionado}</Text></Group>
+              <Group justify="space-between" mb="xs"><Text c="dimmed">Fecha:</Text><Text c="white" fw={500}>{fechaSeleccionada ? new Date(fechaSeleccionada).toLocaleDateString('es-MX', { timeZone: 'UTC', day: '2-digit', month: 'long', year: 'numeric' }) : ''}</Text></Group>
+              <Group justify="space-between"><Text c="dimmed">Hora:</Text><Text c="white" fw={500}>{horaSeleccionada}</Text></Group>
               <Divider my="md" color="#333" />
-              <Group justify="space-between">
-                <Text c="yellow.5" fw={700} size="lg">Total Estimado:</Text>
-                <Text c="yellow.5" fw={900} size="xl">${calcularTotal()}</Text>
-              </Group>
-              <Text size="xs" c="dimmed" ta="right" mt={5}>*El precio final puede variar según las figuras o extras.</Text>
+              <Group justify="space-between"><Text c="yellow.5" fw={700}>Total:</Text><Text c="yellow.5" fw={900}>${calcularTotal()}</Text></Group>
             </Paper>
           </Stepper.Completed>
-
         </Stepper>
 
         <Group justify="center" mt="xl" pt="md">
           <Button variant="default" color="gray" onClick={active === 0 ? onCancel : prevStep}>{active === 0 ? 'Cancelar' : 'Atrás'}</Button>
-          <Button color="yellow.7" onClick={active === 4 ? confirmarCita : nextStep}>{active === 4 ? 'Confirmar y Agendar' : 'Siguiente'}</Button>
+          <Button 
+            color="yellow.7" 
+            onClick={active === 4 ? confirmarCita : nextStep} 
+            loading={active === 4 ? cargando : false} 
+          >
+            {active === 4 ? 'Confirmar y Agendar' : 'Siguiente'}
+          </Button>
         </Group>
 
       </Paper>
