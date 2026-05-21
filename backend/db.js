@@ -1,18 +1,11 @@
 const { Pool } = require('pg');
-require('dotenv').config(); // Carga las contraseñas del archivo .env
 
-// Configuramos la conexión
+// Si existe la variable DATABASE_URL (en internet), se conecta a Neon.
+// Si no existe, se conecta a tu PostgreSQL local de tu computadora.
 const pool = new Pool({
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    database: process.env.DB_NAME
+  connectionString: process.env.DATABASE_URL,
+  // Esto es obligatorio para que Neon acepte la conexión segura SSL desde internet
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
-
-// Probamos que funcione
-pool.connect()
-    .then(() => console.log('✅ Base de datos de JL Barber conectada con éxito'))
-    .catch((err) => console.error('❌ Error al conectar la base de datos', err.stack));
 
 module.exports = pool;
