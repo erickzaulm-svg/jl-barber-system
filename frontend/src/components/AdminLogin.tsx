@@ -10,11 +10,10 @@ export function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
 
   const intentarLogin = async () => {
     try {
-      // Hacemos la llamada al cadenero del backend
-      const respuesta = await axios.post('https://jl-barber-system.onrender.com', { usuario, password });
+      const respuesta = await axios.post('https://jl-barber-system.onrender.com/api/auth/login', { usuario, password });
       
       if (respuesta.data.success) {
-        onLoginSuccess(); // Si nos da acceso, abrimos la bóveda
+        onLoginSuccess();
       }
     } catch (err) {
       setError('Usuario o contraseña incorrectos. Intenta de nuevo.');

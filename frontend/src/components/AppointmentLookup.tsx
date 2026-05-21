@@ -11,13 +11,13 @@ export function AppointmentLookup() {
 
   const buscarCita = async () => {
     if (!idBusqueda.trim()) return;
-    
+
     setCargando(true);
     setError('');
     setCita(null);
 
     try {
-      const respuesta = await axios.get(`https://jl-barber-system.onrender.com/${idBusqueda}`);
+      const respuesta = await axios.get(`https://jl-barber-system.onrender.com/api/appointments/${idBusqueda}`);
       setCita(respuesta.data);
     } catch (err: any) {
       if (err.response && err.response.status === 404) {

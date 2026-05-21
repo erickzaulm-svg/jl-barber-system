@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Container, Title, Table, Paper, Text, Center, Loader, ActionIcon, Group } from '@mantine/core';
-import { IconTrash } from '@tabler/icons-react'; // <-- Importamos el ícono de basura
+import { IconTrash } from '@tabler/icons-react';
 import axios from 'axios';
 
 export function AdminDashboard() {
@@ -9,7 +9,7 @@ export function AdminDashboard() {
 
   // Leer citas al abrir
   useEffect(() => {
-    axios.get('https://jl-barber-system.onrender.com')
+    axios.get('https://jl-barber-system.onrender.com/api/appointments')
       .then((respuesta) => {
         setCitas(respuesta.data);
         setCargando(false);
@@ -20,17 +20,14 @@ export function AdminDashboard() {
       });
   }, []);
 
-  // --- NUEVA FUNCIÓN PARA BORRAR ---
+  // --- FUNCIÓN PARA BORRAR ---
   const borrarCita = async (id: number) => {
-    // Te preguntamos por seguridad antes de borrar
     const confirmar = window.confirm("¿Estás seguro de cancelar esta cita? El horario quedará libre nuevamente.");
     
     if (confirmar) {
       try {
-        // Disparamos la orden de borrar al backend
-        await axios.delete(`https://jl-barber-system.onrender.com/${id}`);
+        await axios.delete(`https://jl-barber-system.onrender.com/api/appointments/${id}`);
         
-        // Si sale bien, quitamos esa cita de la pantalla sin tener que recargar la página
         setCitas(citas.filter(cita => cita.id !== id));
         alert("Cita cancelada con éxito.");
       } catch (error) {
@@ -62,13 +59,13 @@ export function AdminDashboard() {
                   <Table.Th style={{ color: '#d4af37' }}>Hora</Table.Th>
                   <Table.Th style={{ color: '#d4af37' }}>Servicio</Table.Th>
                   <Table.Th style={{ color: '#d4af37' }}>Barbero</Table.Th>
-                  <Table.Th style={{ color: '#d4af37', textAlign: 'center' }}>Acción</Table.Th> {/* <-- Nueva columna */}
+                  <Table.Th style={{ color: '#d4af37', textAlign: 'center' }}>Acción</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
                 {citas.map((cita) => (
                   <Table.Tr key={cita.id}>
-                    <Table.Td>{cita.id}</Table.Td>
+                    <Table.Tr>{cita.id}</Table.Tr>
                     <Table.Td>
                       {new Date(cita.fecha).toLocaleDateString('es-MX', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' })}
                     </Table.Td>
@@ -76,7 +73,6 @@ export function AdminDashboard() {
                     <Table.Td>{cita.servicio}</Table.Td>
                     <Table.Td>{cita.barbero}</Table.Td>
                     <Table.Td>
-                      {/* --- NUEVO BOTÓN DE BASURA --- */}
                       <Group justify="center">
                         <ActionIcon color="red" variant="subtle" onClick={() => borrarCita(cita.id)} title="Cancelar Cita">
                           <IconTrash size={20} />
