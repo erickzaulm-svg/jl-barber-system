@@ -17,7 +17,7 @@ export function AppointmentLookup() {
     setCita(null);
 
     try {
-      const respuesta = await axios.get(`http://localhost:3000/api/appointments/${idBusqueda}`);
+      const respuesta = await axios.get(`https://jl-barber-system.onrender.com/${idBusqueda}`);
       setCita(respuesta.data);
     } catch (err: any) {
       if (err.response && err.response.status === 404) {

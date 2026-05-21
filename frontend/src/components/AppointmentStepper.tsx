@@ -25,7 +25,7 @@ export function AppointmentStepper({ onCancel }: { onCancel: () => void }) {
       const fechaReal = new Date(fechaSeleccionada);
       const fechaFormateada = fechaReal.toISOString().split('T')[0];
 
-      axios.get(`http://localhost:3000/api/appointments/check?fecha=${fechaFormateada}&barbero=${barberoSeleccionado}`)
+      axios.get(`https://jl-barber-system.onrender.com/check?fecha=${fechaFormateada}&barbero=${barberoSeleccionado}`)
         .then((respuesta) => {
           setHorasOcupadas(respuesta.data); 
           setHoraSeleccionada(null); 
@@ -65,7 +65,7 @@ export function AppointmentStepper({ onCancel }: { onCancel: () => void }) {
         fecha: fechaSeleccionada, 
         hora: horaSeleccionada
       };
-      const respuesta = await axios.post('http://localhost:3000/api/appointments', datosDeCita);
+      const respuesta = await axios.post('https://jl-barber-system.onrender.com', datosDeCita);
       alert(respuesta.data.mensaje);
       onCancel();
     } catch (error) {

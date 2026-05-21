@@ -9,7 +9,7 @@ export function AdminDashboard() {
 
   // Leer citas al abrir
   useEffect(() => {
-    axios.get('http://localhost:3000/api/appointments')
+    axios.get('https://jl-barber-system.onrender.com')
       .then((respuesta) => {
         setCitas(respuesta.data);
         setCargando(false);
@@ -28,7 +28,7 @@ export function AdminDashboard() {
     if (confirmar) {
       try {
         // Disparamos la orden de borrar al backend
-        await axios.delete(`http://localhost:3000/api/appointments/${id}`);
+        await axios.delete(`https://jl-barber-system.onrender.com/${id}`);
         
         // Si sale bien, quitamos esa cita de la pantalla sin tener que recargar la página
         setCitas(citas.filter(cita => cita.id !== id));

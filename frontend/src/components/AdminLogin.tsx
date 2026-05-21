@@ -11,7 +11,7 @@ export function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
   const intentarLogin = async () => {
     try {
       // Hacemos la llamada al cadenero del backend
-      const respuesta = await axios.post('http://localhost:3000/api/auth/login', { usuario, password });
+      const respuesta = await axios.post('https://jl-barber-system.onrender.com', { usuario, password });
       
       if (respuesta.data.success) {
         onLoginSuccess(); // Si nos da acceso, abrimos la bóveda
